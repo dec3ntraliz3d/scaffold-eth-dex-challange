@@ -263,9 +263,9 @@ function App(props) {
         {/* <Menu.Item key="/exampleui">
           <Link to="/exampleui">Dex</Link>
         </Menu.Item> */}
-        <Menu.Item key="/debug">
+        {/* <Menu.Item key="/debug">
           <Link to="/debug">Debug Contracts</Link>
-        </Menu.Item>
+        </Menu.Item> */}
         {/* <Menu.Item key="/hints">
           <Link to="/hints">Hints</Link>
         </Menu.Item> */}
