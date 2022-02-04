@@ -1,85 +1,123 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useContractReader } from "eth-hooks";
+import { SyncOutlined } from "@ant-design/icons";
 import { ethers } from "ethers";
+import { Button, Card, Divider, Input, Select, Row, Col, Space } from "antd";
+import "antd/dist/antd.css";
+import React, { useState, useEffect } from "react";
+import { Address, Balance, Events } from "../components";
+import Swap from "../components/Dex/Swap";
+import Liquidity from "../components/Dex/Liquidity";
+import {
+  useContractLoader,
+  useContractReader,
+  useBalance
+} from "eth-hooks";
+import Curve from "../components/Dex/Curve";
+import Layout from "antd/lib/layout/layout";
 
-/**
- * web3 props can be passed from '../App.jsx' into your local view component for use
- * @param {*} yourLocalBalance balance on current network
- * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
- * @returns react component
- */
-function Home({ yourLocalBalance, readContracts }) {
-  // you can also use hooks locally in your component of choice
-  // in this case, let's keep track of 'purpose' variable from our contract
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+
+const { Option } = Select;
+
+export default function ExampleUI({
+
+  address,
+  userSigner,
+  mainnetProvider,
+  localProvider,
+  yourLocalBalance,
+  price,
+  tx,
+  writeContracts,
+  readContracts,
+  contractConfig,
+  chainId
+}) {
+
+  const contracts = useContractLoader(localProvider, contractConfig, chainId);
+
+  // Get user balances.
+
+  const userEthBalance = useBalance(localProvider, address)
+
+  const userTokenBalance = useContractReader(
+    readContracts,
+    "Balloons",
+    "balanceOf",
+    [address]
+
+  )
+
+
+  const dexAddress = readContracts?.Dex?.address;
+  const dexEthBalance = useBalance(localProvider, dexAddress);
+  const dexTokenBalance = useContractReader(
+    readContracts,
+    "Balloons",
+    "balanceOf",
+    [dexAddress]
+  )
+
+
 
   return (
-    <div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>📝</span>
-        This Is Your App Home. You can start editing it in{" "}
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          packages/react-app/src/views/Home.jsx
-        </span>
-      </div>
-      {!purpose?<div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>👷‍♀️</span>
-        You haven't deployed your contract yet, run
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          yarn chain
-        </span> and <span
-            className="highlight"
-            style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-          >
-            yarn deploy
-          </span> to deploy your first contract!
-      </div>:<div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>🤓</span>
-        The "purpose" variable from your contract is{" "}
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          {purpose}
-        </span>
-      </div>}
+    <Row>
+      <Col span={6} />
 
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>🤖</span>
-        An example prop of your balance{" "}
-        <span style={{ fontWeight: "bold", color: "green" }}>({ethers.utils.formatEther(yourLocalBalance)})</span> was
-        passed into the
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          Home.jsx
-        </span>{" "}
-        component from
-        <span
-          className="highlight"
-          style={{ marginLeft: 4, /* backgroundColor: "#f9f9f9", */ padding: 4, borderRadius: 4, fontWeight: "bolder" }}
-        >
-          App.jsx
-        </span>
-      </div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>💭</span>
-        Check out the <Link to="/hints">"Hints"</Link> tab for more tips.
-      </div>
-      <div style={{ margin: 32 }}>
-        <span style={{ marginRight: 8 }}>🛠</span>
-        Tinker with your smart contract using the <Link to="/debug">"Debug Contract"</Link> tab.
-      </div>
-    </div>
+      <Col span={6}>
+        {/* <div style={{ padding: 8, marginTop: 32, width: 400, margin: "auto" }}> */}
+        {/* <Space size={"large"}> */}
+        <Swap
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          localProvider={localProvider}
+          tx={tx}
+          address={address}
+        // userEthBalance={userEthBalance}
+        // userTokenBalance={userTokenBalance}
+        // dexEthBalance={dexEthBalance}
+        // dexTokenBalance={dexTokenBalance}
+        />
+        {/* </div> */}
+      </Col>
+      <Col span={6}>
+        {/* <div style={{ padding: 8, marginTop: 32, width: 400, margin: "auto" }}> */}
+        <Liquidity
+          style={{ marginTop: 0 }}
+          readContracts={readContracts}
+          writeContracts={writeContracts}
+          localProvider={localProvider}
+          tx={tx}
+          address={address}
+          dexEthBalance={dexEthBalance}
+          dexTokenBalance={dexTokenBalance}
+          userEthBalance={userEthBalance}
+          userTokenBalance={userTokenBalance}
+        />
+
+
+        {/* </Space> */}
+
+        {/* </div> */}
+      </Col>
+      <Col span={6} />
+
+      {/* <div
+        style={{
+          padding: 8,
+          marginTop: 50,
+          width: 600,
+          margin: "auto",
+
+
+        }}>
+        <Curve
+          addingEth={0}
+          addingToken={0}
+          ethReserve={dexEthBalance ? ethers.utils.formatEther(dexEthBalance) : 0}
+          tokenReserve={dexTokenBalance ? ethers.utils.formatEther(dexTokenBalance) : 0}
+          width={300}
+          height={300}
+        />
+      </div> */}
+    </Row>
   );
 }
-
-export default Home;
