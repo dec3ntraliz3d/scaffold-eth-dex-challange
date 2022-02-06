@@ -16,6 +16,8 @@ export default function Swap({
   tx,
   localProvider,
   address,
+  dexEthBalance,
+  dexTokenBalance
 
 }) {
 
@@ -44,27 +46,17 @@ export default function Swap({
 
   // Get user balances.
 
-  const userEthBalance = ethers.utils.formatEther(useBalance(localProvider, address))
+  const userEthBalance = useBalance(localProvider, address)
   const userTokenBalance = useContractReader(
     readContracts,
     "Balloons",
     "balanceOf",
-    [address]
+    [address],
+
 
   )
-
-  // console.log(`userTokenBalance:${userTokenBalance}`)
-  //const userTokenBalance = userTokenBalanceBN && ethers.utils.formatEther(userTokenBalanceBN)
-  // // Get DEX reserves.
-
   const dexAddress = readContracts?.Dex?.address;
-  const dexEthBalance = useBalance(localProvider, dexAddress);
-  const dexTokenBalance = useContractReader(
-    readContracts,
-    "Balloons",
-    "balanceOf",
-    [dexAddress]
-  )
+
   // Track current approval amount for this address. 
   const dexApproval = useContractReader(readContracts, "Balloons", "allowance", [
     address, dexAddress
@@ -95,8 +87,10 @@ export default function Swap({
   const [approvalRequired, setApprovalRequired] = useState(false)
 
   // Control the loading options for swap and approve button
-  const [approving, setApproving] = useState(false)
-  const [swapping, setSwapping] = useState(false)
+  // const [approving, setApproving] = useState(false)
+  // const [swapping, setSwapping] = useState(false)
+
+  let approving, swapping = false
 
   // Check token approval amount whenever inputAmout or dexApproval amount has changed.
   useEffect(() => {
@@ -116,31 +110,32 @@ export default function Swap({
 
   const handleSwap = async () => {
 
-    setSwapping(true);
+    swapping = true;
     outputToken === "BAL" ?
       await tx(writeContracts?.Dex?.ethToToken({ value: ethers.utils.parseEther(inputAmount) })) :
       await tx(writeContracts?.Dex?.tokenToEth(ethers.utils.parseEther(inputAmount)));
 
-    setSwapping(false);
+    swapping = false;
   }
 
 
   return (
     <div style={{ marginTop: 10 }}>
-      <Card title="Swap Tokens" style={{ width: 350, height: 300 }} >
+      <Card title="Swap Tokens" >
 
         <div style={{ padding: 6, marginTop: 32 }}>
           <Input
             addonBefore={selectBefore}
-            value={inputAmount}
+            // value={inputAmount}
             onChange={(e) => {
-              setInputAmount(e.target.value);
+              const value = parseFloat(e.target.value);
+              setInputAmount(value ? value.toString() : "0");
             }}
           />
           <Text
             type="secondary"
           >
-            {`${outputToken === "ETH" ? ethers.utils.formatEther(userTokenBalance) : userEthBalance}`}
+            {`${outputToken === "ETH" ? ethers.utils.formatEther(userTokenBalance) : ethers.utils.formatEther(userEthBalance)}`}
           </Text>
         </div>
         <div style={{ padding: 8 }}>
@@ -154,8 +149,7 @@ export default function Swap({
             disabled={!approvalRequired}
             loading={approving}
             onClick={async () => {
-              setApproving(true)
-              // const resetAmount = inputAmount
+              approving = true;
               await tx(writeContracts?.Balloons?.approve(
                 dexAddress,
                 inputAmount
@@ -163,7 +157,7 @@ export default function Swap({
                 ethers.utils.parseEther(inputAmount)
               ));
 
-              setApproving(false);
+              approving = false;
 
             }}
 
@@ -181,10 +175,10 @@ export default function Swap({
         </Space>
       </Card>
       <Curve
-        addingEth={outputToken === "BAL" ? inputAmount && inputAmount : undefined}
-        addingToken={outputToken === "ETH" ? inputAmount && inputAmount : undefined}
-        ethReserve={dexEthBalance ? parseFloat(ethers.utils.formatEther(dexEthBalance)) : 0}
-        tokenReserve={dexTokenBalance ? parseFloat(ethers.utils.formatEther(dexTokenBalance)) : 0}
+        addingEth={outputToken === "BAL" ? inputAmount && parseFloat(inputAmount) : 0}
+        addingToken={outputToken === "ETH" ? inputAmount && parseFloat(inputAmount) : 0}
+        ethReserve={dexEthBalance ? ethers.utils.formatEther(dexEthBalance) : 0}
+        tokenReserve={dexTokenBalance ? ethers.utils.formatEther(dexTokenBalance) : 0}
         width={300}
         height={300}
       />

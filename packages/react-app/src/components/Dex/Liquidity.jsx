@@ -201,7 +201,7 @@ export default function Liquidity({
 
     return (
         <Card
-            style={{ width: 350, height: 300, marginTop: 10 }}
+            style={{ marginTop: 10 }}
             title="Add/Remove Liquidity"
             tabList={tabList}
             activeTabKey={activeTabKey}

@@ -59,10 +59,10 @@ export default function ExampleUI({
 
 
   return (
-    <Row>
-      <Col span={6} />
+    <Row gutter={16}>
+      <Col span={4} />
 
-      <Col span={6}>
+      <Col span={8}>
         {/* <div style={{ padding: 8, marginTop: 32, width: 400, margin: "auto" }}> */}
         {/* <Space size={"large"}> */}
         <Swap
@@ -71,14 +71,14 @@ export default function ExampleUI({
           localProvider={localProvider}
           tx={tx}
           address={address}
-        // userEthBalance={userEthBalance}
-        // userTokenBalance={userTokenBalance}
-        // dexEthBalance={dexEthBalance}
-        // dexTokenBalance={dexTokenBalance}
+          // userEthBalance={userEthBalance}
+          // userTokenBalance={userTokenBalance}
+          dexEthBalance={dexEthBalance}
+          dexTokenBalance={dexTokenBalance}
         />
         {/* </div> */}
       </Col>
-      <Col span={6}>
+      <Col span={8}>
         {/* <div style={{ padding: 8, marginTop: 32, width: 400, margin: "auto" }}> */}
         <Liquidity
           style={{ marginTop: 0 }}
@@ -98,7 +98,7 @@ export default function ExampleUI({
 
         {/* </div> */}
       </Col>
-      <Col span={6} />
+      <Col span={4} />
 
       {/* <div
         style={{

@@ -3,6 +3,16 @@ import React, { useRef, useEffect } from "react";
 export default function Curve(props) {
     let ref = useRef();
 
+    const Debug = true;
+
+
+    if (Debug) {
+        console.log(`props.ethReserve:${props.ethReserve}`)
+        console.log(`props.tokenReserve:${props.tokenReserve}`)
+        console.log(`props.addingEth:${props.addingEth}`)
+        console.log(`props.addingToken:${props.addingToken}`)
+    }
+
     const drawArrow = (ctx, x1, y1, x2, y2) => {
         let [dx, dy] = [x1 - x2, y1 - y2];
         let norm = Math.sqrt(dx * dx + dy * dy);
